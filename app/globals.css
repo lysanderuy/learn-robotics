@@ -37,6 +37,19 @@ button {
   cursor: pointer;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+button {
+  overflow-wrap: anywhere;
+}
+
 ::selection {
   background: rgba(87, 214, 255, 0.28);
   color: white;

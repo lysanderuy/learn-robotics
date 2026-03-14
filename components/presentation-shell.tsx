@@ -144,12 +144,12 @@ const goals = [
 
 const segments = [
   {
-    title: "Welcome & Introduction to Robotics",
+    title: "Introduction to Robotics",
     duration: "30 min",
     text: "Students meet the big robot ideas: control, movement, and sensing. Simple examples make each one easy to picture.",
   },
   {
-    title: "Robot Kit Introduction",
+    title: "Know your Robots",
     duration: "20 min",
     text: "Students get to know the chassis, motors, wheels, controller board, battery, and Bluetooth parts before building.",
   },
@@ -315,9 +315,9 @@ export function PresentationShell() {
                   )}
                 >
                   <span className="font-mono text-xs tracking-[0.34em] text-cyan-200/70">{scene.index}</span>
-                  <span className="space-y-1">
+                  <span className="min-w-0 space-y-1">
                     <span className="block text-sm uppercase tracking-[0.22em] text-white/65">{scene.eyebrow}</span>
-                    <span className="block font-display text-xl uppercase leading-none">{scene.label}</span>
+                    <span className="block break-words font-display text-lg uppercase leading-tight sm:text-xl sm:leading-none">{scene.label}</span>
                     <span className="block text-xs text-slate-400">{scene.description}</span>
                   </span>
                 </button>
@@ -355,11 +355,11 @@ export function PresentationShell() {
 function SceneFrame({ scene, className, children }: { scene: Scene; className?: string; children: React.ReactNode }) {
   return (
     <section id={scene.id} data-scene={scene.id} className={cn("relative min-h-screen snap-start overflow-hidden px-4 py-20 sm:px-6 sm:py-24 md:px-10 lg:px-16", className)}>
-      <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-[92rem] flex-col sm:min-h-[calc(100vh-12rem)]">
+      <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-[92rem] min-w-0 flex-col sm:min-h-[calc(100vh-12rem)]">
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.38em] text-cyan-200/70">{scene.eyebrow}</p>
-            <h2 className="mt-3 max-w-4xl font-display text-3xl uppercase leading-[0.95] sm:text-5xl sm:leading-[0.9] lg:text-7xl">{scene.title}</h2>
+            <h2 className="mt-3 max-w-4xl break-words font-display text-[2rem] uppercase leading-[0.95] sm:text-5xl sm:leading-[0.9] lg:text-7xl">{scene.title}</h2>
           </div>
           <div className="hidden rounded-full border border-white/12 px-4 py-2 font-mono text-xs uppercase tracking-[0.34em] text-slate-300 md:block">{scene.index}</div>
         </div>
@@ -413,9 +413,9 @@ function HeroScene() {
             </div>
             <div className="grid gap-3">
               {segments.slice(0, 3).map((segment, index) => (
-                <div key={segment.title} className="flex items-center justify-between rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-4 py-3">
+                <div key={segment.title} className="flex flex-col gap-2 rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="font-mono text-[0.64rem] uppercase tracking-[0.28em] text-cyan-200/70">0{index + 1}</span>
-                  <span className="font-display text-xl uppercase">{segment.title}</span>
+                  <span className="break-words font-display text-lg uppercase leading-tight sm:text-xl">{segment.title}</span>
                 </div>
               ))}
             </div>
@@ -467,7 +467,7 @@ function GoalsScene() {
           {goals.map((goal, index) => (
             <div key={goal.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 sm:rounded-[2rem] sm:p-6">
               <p className="font-mono text-[0.64rem] uppercase tracking-[0.3em] text-cyan-200/70">Goal 0{index + 1}</p>
-              <p className="mt-4 font-display text-3xl uppercase leading-none">{goal.title}</p>
+              <p className="mt-4 break-words font-display text-2xl uppercase leading-tight sm:text-3xl sm:leading-none">{goal.title}</p>
               <p className="mt-4 text-base leading-7 text-slate-300">{goal.text}</p>
             </div>
           ))}
@@ -490,10 +490,10 @@ function SegmentsScene() {
         <div id="segments-1-4" data-subscene="segments-1-4" className="space-y-4">
           {segments.slice(0, 4).map((segment, index) => (
             <article key={segment.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 sm:rounded-[2rem] sm:p-6">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="font-mono text-[0.64rem] uppercase tracking-[0.3em] text-cyan-200/70">Segment 0{index + 1}</p>
-                  <h3 className="mt-3 font-display text-3xl uppercase leading-none">{segment.title}</h3>
+                  <h3 className="mt-3 break-words font-display text-2xl uppercase leading-tight sm:text-3xl sm:leading-none">{segment.title}</h3>
                 </div>
                 <span className="rounded-full border border-white/10 px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.22em] text-slate-300">{segment.duration}</span>
               </div>
@@ -503,11 +503,11 @@ function SegmentsScene() {
         </div>
         <div id="segments-5-9" data-subscene="segments-5-9" className="space-y-4">
           {segments.slice(4).map((segment, index) => (
-            <article key={segment.title} className={index === 3 ? "rounded-[2rem] border border-cyan-300/20 bg-cyan-300/[0.07] p-6" : "rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"}>
-              <div className="flex items-start justify-between gap-4">
+            <article key={segment.title} className={index === 3 ? "rounded-[1.5rem] border border-cyan-300/20 bg-cyan-300/[0.07] p-5 sm:rounded-[2rem] sm:p-6" : "rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 sm:rounded-[2rem] sm:p-6"}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="font-mono text-[0.64rem] uppercase tracking-[0.3em] text-cyan-200/70">Segment 0{index + 5}</p>
-                  <h3 className="mt-3 font-display text-3xl uppercase leading-none">{segment.title}</h3>
+                  <h3 className="mt-3 break-words font-display text-2xl uppercase leading-tight sm:text-3xl sm:leading-none">{segment.title}</h3>
                 </div>
                 <span className="rounded-full border border-white/10 px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.22em] text-slate-300">{segment.duration}</span>
               </div>
@@ -532,7 +532,7 @@ function RobotScene({ robotMode, activePart, animateRobot, setRobotMode, setActi
             <p className="mt-4 text-sm leading-6 text-slate-300">Real Day 01 kit: custom Nano + TB6612FNG board, 2x18650 battery pack, N20 motors, N20 wheels, and Bluetooth for Arduino control.</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {partsLegend.map((part) => (
-                <button key={part.id} type="button" onClick={() => setActivePart(part.id)} className={cn("rounded-[1.2rem] border px-4 py-3 text-left font-mono text-[0.7rem] uppercase tracking-[0.2em] transition", activePart === part.id ? "border-cyan-300/70 bg-cyan-300/12 text-cyan-50" : "border-white/10 bg-slate-950/45 text-slate-300 hover:border-white/20")}>
+                <button key={part.id} type="button" onClick={() => setActivePart(part.id)} className={cn("rounded-[1.2rem] border px-4 py-3 text-left font-mono text-[0.65rem] uppercase tracking-[0.16em] [overflow-wrap:anywhere] transition sm:text-[0.7rem] sm:tracking-[0.2em]", activePart === part.id ? "border-cyan-300/70 bg-cyan-300/12 text-cyan-50" : "border-white/10 bg-slate-950/45 text-slate-300 hover:border-white/20")}>
                   {part.label}
                 </button>
               ))}
@@ -548,7 +548,7 @@ function RobotScene({ robotMode, activePart, animateRobot, setRobotMode, setActi
                 </button>
               ))}
             </div>
-            <div className="mt-8 flex items-center justify-between rounded-[1.6rem] border border-white/10 bg-slate-950/55 px-4 py-3">
+            <div className="mt-8 flex flex-col gap-3 rounded-[1.6rem] border border-white/10 bg-slate-950/55 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-display text-2xl uppercase">Motion Demo</p>
                 <p className="text-sm text-slate-400">Show how the board, motors, wheels, and battery work as one system.</p>
@@ -564,9 +564,9 @@ function RobotScene({ robotMode, activePart, animateRobot, setRobotMode, setActi
           <div className="absolute inset-x-0 top-0 z-10 flex flex-col items-start gap-2 border-b border-white/10 bg-slate-950/45 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
             <div>
               <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-slate-400">Workshop Platform Viewer</p>
-              <p className="mt-1 font-display text-2xl uppercase text-white">Custom Nano + TB6612FNG robot platform</p>
+              <p className="mt-1 break-words font-display text-xl uppercase leading-tight text-white sm:text-2xl">Custom Nano + TB6612FNG robot platform</p>
             </div>
-            <div className="font-mono text-[0.68rem] uppercase tracking-[0.3em] text-cyan-100/70">{robotMode} / {activePart}</div>
+            <div className="max-w-full break-words font-mono text-[0.62rem] uppercase tracking-[0.22em] text-cyan-100/70 sm:text-[0.68rem] sm:tracking-[0.3em]">{robotMode} / {activePart}</div>
           </div>
           <div className="h-full pt-20">
             <RobotStage mode={robotMode} activePart={activePart} animate={animateRobot} />
@@ -595,7 +595,7 @@ function ActivitiesScene() {
             ].map((item, index) => (
               <div key={item} className="flex items-center gap-4 rounded-[1.4rem] border border-white/10 bg-slate-950/45 px-4 py-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs">0{index + 1}</span>
-                <span className="text-base leading-7 text-slate-200">{item}</span>
+                <span className="min-w-0 break-words text-base leading-7 text-slate-200">{item}</span>
               </div>
             ))}
           </div>
@@ -626,7 +626,7 @@ function OutcomesScene() {
           {learningOutcomes.map((item, index) => (
             <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-5 sm:rounded-[1.9rem] sm:p-6">
               <p className="font-mono text-[0.64rem] uppercase tracking-[0.3em] text-cyan-200/70">Outcome 0{index + 1}</p>
-              <p className="mt-4 font-display text-3xl uppercase leading-none">{item.title}</p>
+              <p className="mt-4 break-words font-display text-2xl uppercase leading-tight sm:text-3xl sm:leading-none">{item.title}</p>
               <p className="mt-4 text-base leading-7 text-slate-300">{item.text}</p>
             </div>
           ))}

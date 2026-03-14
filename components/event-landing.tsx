@@ -3,29 +3,34 @@ import { ArrowRight, Orbit, Sparkles } from "lucide-react";
 
 const pillars = [
   {
+    number: "01",
     label: "Build",
-    title: "Turn parts into a working machine.",
-    text: "Build a real robot and watch it come alive.",
+    title: "Build the machine.",
+    text: "Turn parts into a robot you can control.",
   },
   {
+    number: "02",
     label: "Move",
-    title: "See movement become understandable.",
-    text: "See how motors, wheels, and control create real movement.",
+    title: "Make motion click.",
+    text: "See how motors and wheels create movement.",
   },
   {
+    number: "03",
     label: "Sense",
-    title: "Discover how robots read the world.",
-    text: "See how robots react to the world around them.",
+    title: "Teach it to sense.",
+    text: "See how robots detect and react around them.",
   },
   {
+    number: "04",
     label: "Think",
-    title: "Learn systems, not just gadgets.",
-    text: "See how power, control, movement, and sensors work together.",
+    title: "Think in systems.",
+    text: "See how power, control, and motion connect.",
   },
   {
+    number: "05",
     label: "Create",
-    title: "Build confidence through making.",
-    text: "Create, test, fix, and improve your machine.",
+    title: "Create with confidence.",
+    text: "Test, fix, and improve your own robot.",
   },
 ];
 
@@ -75,11 +80,11 @@ export function EventLanding() {
             <div className="space-y-6 sm:space-y-8">
               <p className="font-mono text-[0.62rem] uppercase tracking-[0.32em] text-cyan-200/70 sm:text-[0.72rem] sm:tracking-[0.4em]">Promotional Showcase</p>
               <div className="space-y-4 sm:space-y-6">
-                <h2 className="max-w-5xl font-display text-4xl uppercase leading-[0.92] sm:text-5xl md:text-6xl lg:text-8xl lg:leading-[0.88]">
+                <h2 className="max-w-5xl break-words font-display text-[2.5rem] uppercase leading-[0.92] sm:text-5xl md:text-6xl lg:text-8xl lg:leading-[0.88]">
                   Build it. Drive it. Make it move.
                 </h2>
                 <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8 md:text-xl">
-                  Robotics 101 is a hands-on robotics experience for kids and high school students who want to build, drive, and understand real machines.
+                  Robotics 101 is a hands-on robotics experience where you build, drive, and understand real machines.
                 </p>
               </div>
 
@@ -104,7 +109,7 @@ export function EventLanding() {
                   <Orbit className="h-6 w-6 shrink-0 text-cyan-200/80 sm:h-8 sm:w-8" />
                 </div>
                 <div className="space-y-4">
-                  <p className="font-display text-3xl uppercase leading-none sm:text-4xl lg:text-5xl">Get hands-on with a real robot.</p>
+                  <p className="break-words font-display text-3xl uppercase leading-tight sm:text-4xl sm:leading-none lg:text-5xl">Get hands-on with a real robot.</p>
                   <p className="max-w-md text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
                     This event makes robotics feel real from the start. You build it, test it, and see what each part does.
                   </p>
@@ -113,7 +118,7 @@ export function EventLanding() {
                   {dayOnePreview.map((item, index) => (
                     <div key={item} className="flex flex-col gap-2 rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <span className="font-mono text-[0.6rem] uppercase tracking-[0.24em] text-cyan-200/70 sm:text-[0.64rem] sm:tracking-[0.28em]">0{index + 1}</span>
-                      <span className="font-display text-lg uppercase leading-tight sm:text-xl">{item}</span>
+                      <span className="break-words font-display text-base uppercase leading-tight sm:text-xl">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -129,19 +134,26 @@ export function EventLanding() {
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-200/70 sm:text-[0.68rem] sm:tracking-[0.34em]">Robotics Pillars</p>
             <h3 className="mt-4 font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">The event is built around five big robotics ideas.</h3>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-5">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 xl:auto-rows-fr xl:grid-cols-5">
             {pillars.map((item, index) => (
               <article
                 key={item.label}
                 className={
                   index === 2
-                    ? "rounded-[1.8rem] border border-cyan-300/18 bg-cyan-300/[0.07] p-5 sm:rounded-[2.1rem] sm:p-6 lg:rounded-[2.3rem] lg:p-7"
-                    : "rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-5 sm:rounded-[2.1rem] sm:p-6 lg:rounded-[2.3rem] lg:p-7"
+                    ? "h-full min-h-[17rem] rounded-[1.8rem] border border-cyan-300/18 bg-cyan-300/[0.07] p-5 sm:min-h-[17.5rem] sm:rounded-[2.1rem] sm:p-6 lg:min-h-[18rem] lg:rounded-[2.3rem] lg:p-7 xl:min-h-[19rem]"
+                    : "h-full min-h-[17rem] rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-5 sm:min-h-[17.5rem] sm:rounded-[2.1rem] sm:p-6 lg:min-h-[18rem] lg:rounded-[2.3rem] lg:p-7 xl:min-h-[19rem]"
                 }
               >
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-200/70 sm:text-[0.68rem] sm:tracking-[0.32em]">{item.label}</p>
-                <h3 className="mt-4 font-display text-2xl uppercase leading-none sm:text-3xl lg:mt-5 lg:text-4xl">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-4 sm:text-base sm:leading-7">{item.text}</p>
+                <div className="relative flex h-full flex-col overflow-hidden">
+                  <span className="pointer-events-none absolute -bottom-5 right-0 font-display text-[4.5rem] leading-none text-white/[0.05] sm:-bottom-6 sm:text-[6rem] lg:text-[7rem]">
+                    {item.number}
+                  </span>
+                  <p className="relative z-10 font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-200/70 sm:text-[0.68rem] sm:tracking-[0.32em]">{item.label}</p>
+                  <div className="relative z-10 mt-4 flex h-[5.4rem] items-start sm:h-[5.8rem] lg:mt-5 lg:h-[6.1rem]">
+                    <h3 className="max-w-[11ch] break-words font-display text-[1.7rem] uppercase leading-[0.94] sm:text-[1.9rem] lg:text-[2.15rem]">{item.title}</h3>
+                  </div>
+                  <p className="relative z-10 mt-3 max-w-[13rem] text-sm leading-6 text-slate-300 sm:mt-4 sm:text-base sm:leading-7">{item.text}</p>
+                </div>
               </article>
             ))}
           </div>
@@ -154,14 +166,14 @@ export function EventLanding() {
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-slate-400 sm:text-[0.68rem] sm:tracking-[0.34em]">Why It Matters</p>
             <h3 className="mt-4 font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:mt-5 lg:text-5xl lg:leading-[0.9]">Engineering gets real here.</h3>
             <p className="mt-4 max-w-xl text-base leading-7 text-slate-300 sm:mt-5 sm:text-lg sm:leading-8">
-              Students do not just watch robots. They build them, control them, and learn how they work.
+              You do not just watch robots. You build them, control them, and learn how they work.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {outcomes.map((item, index) => (
               <div key={item} className="rounded-[1.2rem] border border-white/10 bg-slate-950/45 px-4 py-4 sm:rounded-[1.4rem]">
                 <p className="font-mono text-[0.58rem] uppercase tracking-[0.26em] text-cyan-200/70 sm:text-[0.62rem] sm:tracking-[0.3em]">Outcome {index + 1}</p>
-                <p className="mt-3 font-display text-xl uppercase leading-tight sm:text-2xl sm:leading-none">{item}</p>
+                <p className="mt-3 break-words font-display text-xl uppercase leading-tight sm:text-2xl sm:leading-none">{item}</p>
               </div>
             ))}
           </div>
@@ -172,7 +184,7 @@ export function EventLanding() {
         <div className="mx-auto grid max-w-[92rem] gap-6 sm:gap-8 lg:grid-cols-[1fr_1fr]">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 sm:rounded-[2.4rem] sm:p-8 lg:rounded-[2.8rem] lg:p-10">
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-200/70 sm:text-[0.68rem] sm:tracking-[0.34em]">Event Experience</p>
-            <h3 className="mt-4 font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Robotics 101 is built for action.</h3>
+            <h3 className="mt-4 break-words font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Robotics 101 is built for action.</h3>
             <div className="mt-6 grid gap-4 sm:mt-8">
               {experienceMoments.map((item, index) => (
                 <div key={item} className="rounded-[1.2rem] border border-white/10 bg-slate-950/45 px-4 py-4 sm:rounded-[1.5rem] sm:px-5">
@@ -185,9 +197,9 @@ export function EventLanding() {
 
           <div className="rounded-[2rem] border border-cyan-300/18 bg-cyan-300/[0.07] p-5 sm:rounded-[2.4rem] sm:p-8 lg:rounded-[2.8rem] lg:p-10">
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-100/75 sm:text-[0.68rem] sm:tracking-[0.34em]">Featured Chapter</p>
-            <h3 className="mt-4 font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Day 01 starts with motion.</h3>
+            <h3 className="mt-4 break-words font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Day 01 starts with motion.</h3>
             <p className="mt-4 text-base leading-7 text-cyan-50/88 sm:mt-5 sm:text-lg sm:leading-8">
-              Day 01 is where students meet the robot, build the base, power it on, and start driving.
+              Day 01 is where you meet the robot, build the base, power it on, and start driving.
             </p>
             <p className="mt-4 text-sm leading-6 text-cyan-50/80 sm:mt-5 sm:text-base sm:leading-7">
               It is the perfect starting point because movement makes robotics click fast.
@@ -207,9 +219,9 @@ export function EventLanding() {
         <div className="mx-auto flex max-w-[92rem] flex-col items-start justify-between gap-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 sm:gap-8 sm:rounded-[2.4rem] sm:p-8 lg:flex-row lg:items-end lg:rounded-[2.8rem] lg:p-10">
           <div>
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-cyan-200/70 sm:text-[0.68rem] sm:tracking-[0.34em]">Closing Signal</p>
-            <h3 className="mt-4 font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Robotics 101 turns curiosity into action.</h3>
+            <h3 className="mt-4 break-words font-display text-3xl uppercase leading-[0.95] sm:text-4xl lg:text-5xl lg:leading-[0.9]">Robotics 101 turns curiosity into action.</h3>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
-              For kids and high school students, it is a fun first step into building, driving, and thinking like a roboticist.
+              It is a fun first step into building, driving, and thinking like a roboticist.
             </p>
           </div>
           <Link
