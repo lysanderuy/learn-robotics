@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #050816;
+  --foreground: #edf6ff;
+  --cyan: #57d6ff;
+  --cyan-soft: rgba(87, 214, 255, 0.12);
+  --orange: #ff9b62;
+  --steel: #91a0bc;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Bahnschrift, "Arial Narrow", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(87, 214, 255, 0.28);
+  color: white;
+}
+
+.font-display {
+  font-family: Bahnschrift, Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(87, 214, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(87, 214, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  background-size:
+    5rem 5rem,
+    5rem 5rem,
+    1rem 1rem,
+    1rem 1rem;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(5, 8, 22, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(87, 214, 255, 0.6), rgba(255, 155, 98, 0.45));
+}
