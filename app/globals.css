@@ -18,6 +18,7 @@ body {
 }
 
 body {
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: Bahnschrift, "Arial Narrow", "Segoe UI", sans-serif;
@@ -63,6 +64,16 @@ button {
     5rem 5rem,
     1rem 1rem,
     1rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .blueprint-grid {
+    background-size:
+      3.5rem 3.5rem,
+      3.5rem 3.5rem,
+      0.85rem 0.85rem,
+      0.85rem 0.85rem;
+  }
 }
 
 ::-webkit-scrollbar {
