@@ -16,27 +16,36 @@ type VisualState = {
 
 const cyan = "#57d6ff";
 const orange = "#ff9b62";
-const frameBlack = "#171a1f";
-const frameEdge = "#2a2f37";
-const frontArc = "#d89b1d";
+const shellDark = "#171c23";
+const shellMid = "#272f38";
+const shellPlate = "#0e141b";
 const boardBlue = "#2467d8";
 const batteryBlack = "#101318";
+const motorGold = "#c7aa57";
+const motorCap = "#d6dae1";
 const wheelGrey = "#d8dde6";
-const whiteMount = "#f3f4f6";
-const brass = "#9a7a42";
+const wheelHub = "#252a31";
+const wireRed = "#ff6a4d";
+const wireBlue = "#54bfff";
+const wireYellow = "#ffd95c";
+
+function addOffset(position: Vec3, offset: Vec3): Vec3 {
+  return [position[0] + offset[0], position[1] + offset[1], position[2] + offset[2]];
+}
 
 function getPartOffset(mode: RobotMode, offset: Vec3): Vec3 {
   return mode === "exploded" ? offset : [0, 0, 0];
 }
 
-function getVisualState(activePart: string, partIds: string[]): VisualState {
+function getVisualState(activePart: string, partIds: string[], mode?: RobotMode): VisualState {
   const active = activePart === "all" || partIds.includes(activePart);
   const focused = activePart !== "all" && partIds.includes(activePart);
+  const fadedCore = mode === "parts" && partIds.includes("core");
 
   return {
-    opacity: active ? 1 : 0.18,
+    opacity: fadedCore ? 0.16 : active ? 1 : 0.14,
     emissive: focused ? cyan : "#000000",
-    emissiveIntensity: focused ? 0.5 : 0,
+    emissiveIntensity: focused ? 0.42 : 0,
   };
 }
 
@@ -44,30 +53,55 @@ function Material({ color, state, metalness = 0.25, roughness = 0.6 }: { color: 
   return <meshStandardMaterial color={color} metalness={metalness} roughness={roughness} transparent opacity={state.opacity} emissive={state.emissive} emissiveIntensity={state.emissiveIntensity} />;
 }
 
+function WireRun({ color, state, points }: { color: string; state: VisualState; points: Vec3[] }) {
+  return (
+    <group>
+      {points.map((point, index) => {
+        if (index === points.length - 1) return null;
+        const next = points[index + 1];
+        const dx = next[0] - point[0];
+        const dy = next[1] - point[1];
+        const dz = next[2] - point[2];
+        const dominant = Math.max(Math.abs(dx), Math.abs(dy), Math.abs(dz));
+        const axis = Math.abs(dx) >= Math.abs(dz) ? "x" : "z";
+        const position: Vec3 = [(point[0] + next[0]) / 2, (point[1] + next[1]) / 2, (point[2] + next[2]) / 2];
+        const scale: Vec3 = axis === "x" ? [dominant, 0.018, 0.018] : [0.018, 0.018, dominant];
+        const vertical = Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > Math.abs(dz);
+        return (
+          <mesh key={`${color}-${index}`} position={position}>
+            <boxGeometry args={vertical ? [0.018, dominant, 0.018] : scale} />
+            <meshStandardMaterial color={color} metalness={0.08} roughness={0.55} transparent opacity={state.opacity} emissive={color} emissiveIntensity={0.1} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
 function RobotModel({ mode, activePart, animate }: { mode: RobotMode; activePart: string; animate: boolean }) {
   const root = useRef<Group>(null);
   const leftWheel = useRef<Group>(null);
   const rightWheel = useRef<Group>(null);
-  const ribbon = useRef<Group>(null);
-  const arc = useRef<Group>(null);
 
-  const chassisState = getVisualState(activePart, ["core"]);
+  const chassisState = getVisualState(activePart, ["core"], mode);
   const boardState = getVisualState(activePart, ["sensor"]);
   const leftState = getVisualState(activePart, ["arm-left"]);
   const rightState = getVisualState(activePart, ["arm-right"]);
   const mobilityState = getVisualState(activePart, ["mobility"]);
 
-  const chassisOffset = getPartOffset(mode, [0, 0, 0]);
-  const boardOffset = getPartOffset(mode, [0, 0.22, -0.22]);
-  const arcOffset = getPartOffset(mode, [0, 0.36, 0.42]);
-  const leftOffset = getPartOffset(mode, [-0.55, 0, -0.18]);
-  const rightOffset = getPartOffset(mode, [0.55, 0, -0.18]);
-  const mobilityOffset = getPartOffset(mode, [0, 0.16, 0.02]);
+  const shellOffset = getPartOffset(mode, [0, 0.12, 0.14]);
+  const coverOffset = getPartOffset(mode, [0, 0.38, 0.14]);
+  const boardOffset = getPartOffset(mode, [0, 0.16, 0.0]);
+  const batteryOffset = getPartOffset(mode, [0, 0.05, 0.3]);
+  const leftMotorOffset = getPartOffset(mode, [-0.52, 0.0, 0.12]);
+  const rightMotorOffset = getPartOffset(mode, [0.52, 0.0, 0.12]);
+  const leftWheelOffset = getPartOffset(mode, [-0.86, -0.02, 0.08]);
+  const rightWheelOffset = getPartOffset(mode, [0.86, -0.02, 0.08]);
 
   const glowBars = useMemo(
     () => [
-      { position: [0, -0.02, 0.1] as Vec3, scale: [1.65, 0.01, 0.03] as Vec3 },
-      { position: [0, -0.02, 0.72] as Vec3, scale: [1.65, 0.01, 0.03] as Vec3 },
+      { position: [0, -0.24, 0.02] as Vec3, scale: [2.05, 0.01, 0.05] as Vec3 },
+      { position: [0, -0.24, 0.72] as Vec3, scale: [2.05, 0.01, 0.05] as Vec3 },
     ],
     [],
   );
@@ -76,181 +110,154 @@ function RobotModel({ mode, activePart, animate }: { mode: RobotMode; activePart
     const t = state.clock.elapsedTime;
 
     if (root.current) {
-      root.current.rotation.y = Math.sin(t * 0.24) * 0.08;
-      root.current.rotation.x = -0.18 + Math.sin(t * 0.3) * 0.015;
-      root.current.position.y = Math.sin(t * 0.5) * 0.015;
+      root.current.rotation.y = Math.sin(t * 0.22) * 0.11;
+      root.current.rotation.x = -0.1 + Math.sin(t * 0.28) * 0.01;
+      root.current.position.y = Math.sin(t * 0.4) * 0.012;
     }
 
     if (animate) {
-      if (leftWheel.current) {
-        leftWheel.current.rotation.z = t * 3.4;
-      }
-      if (rightWheel.current) {
-        rightWheel.current.rotation.z = -t * 3.4;
-      }
-      if (ribbon.current) {
-        ribbon.current.rotation.x = -0.02 + Math.sin(t * 1.6) * 0.02;
-      }
-      if (arc.current) {
-        arc.current.rotation.z = Math.sin(t * 0.8) * 0.015;
-      }
+      if (leftWheel.current) leftWheel.current.rotation.z = t * 3.1;
+      if (rightWheel.current) rightWheel.current.rotation.z = -t * 3.1;
     }
   });
 
   return (
-    <group ref={root} position={[0, -0.22, 0]}>
-      <group position={chassisOffset}>
-        <mesh position={[0, -0.08, 0.18]}>
-          <boxGeometry args={[1.18, 0.06, 1.25]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.3} roughness={0.7} />
+    <group ref={root} position={[0, -0.18, 0]}>
+      <group position={shellOffset}>
+        <mesh position={[0, -0.2, 0.08]}>
+          <boxGeometry args={[1.58, 0.08, 1.08]} />
+          <Material color={shellDark} state={chassisState} metalness={0.28} roughness={0.72} />
         </mesh>
-
-        <mesh position={[-0.72, -0.04, 0.26]}>
-          <boxGeometry args={[0.1, 0.08, 1.55]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.32} roughness={0.7} />
+        <mesh position={[0, -0.01, 0.46]}>
+          <boxGeometry args={[1.58, 0.24, 0.08]} />
+          <Material color={shellMid} state={chassisState} metalness={0.28} roughness={0.66} />
         </mesh>
-        <mesh position={[0.72, -0.04, 0.26]}>
-          <boxGeometry args={[0.1, 0.08, 1.55]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.32} roughness={0.7} />
+        <mesh position={[0, -0.01, 0.06]}>
+          <boxGeometry args={[1.58, 0.24, 0.08]} />
+          <Material color={shellMid} state={chassisState} metalness={0.28} roughness={0.66} />
         </mesh>
-
-        <mesh position={[-0.72, -0.04, -0.42]} rotation={[0, 0, 0.62]}>
-          <boxGeometry args={[0.1, 0.08, 0.48]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.32} roughness={0.7} />
+        <mesh position={[-0.75, -0.01, 0.26]}>
+          <boxGeometry args={[0.08, 0.24, 0.48]} />
+          <Material color={shellMid} state={chassisState} metalness={0.28} roughness={0.66} />
         </mesh>
-        <mesh position={[0.72, -0.04, -0.42]} rotation={[0, 0, -0.62]}>
-          <boxGeometry args={[0.1, 0.08, 0.48]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.32} roughness={0.7} />
+        <mesh position={[0.75, -0.01, 0.26]}>
+          <boxGeometry args={[0.08, 0.24, 0.48]} />
+          <Material color={shellMid} state={chassisState} metalness={0.28} roughness={0.66} />
         </mesh>
-
-        <mesh position={[0, -0.02, -0.48]}>
-          <boxGeometry args={[1.28, 0.05, 0.18]} />
-          <Material color={frameEdge} state={chassisState} metalness={0.28} roughness={0.72} />
+        <mesh position={[0, 0.0, -0.42]} rotation={[-0.55, 0, 0]}>
+          <boxGeometry args={[1.38, 0.05, 0.42]} />
+          <Material color={shellPlate} state={chassisState} metalness={0.24} roughness={0.74} />
         </mesh>
-
-        <mesh position={[-0.72, 0.1, 0.92]}>
-          <boxGeometry args={[0.08, 0.52, 0.08]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.34} roughness={0.62} />
+        <mesh position={[0, 0.06, -0.58]}>
+          <boxGeometry args={[1.3, 0.08, 0.08]} />
+          <Material color={shellMid} state={chassisState} metalness={0.28} roughness={0.66} />
         </mesh>
-        <mesh position={[0.72, 0.1, 0.92]}>
-          <boxGeometry args={[0.08, 0.52, 0.08]} />
-          <Material color={frameBlack} state={chassisState} metalness={0.34} roughness={0.62} />
+        <mesh position={[0, 0.06, -0.63]}>
+          <boxGeometry args={[0.34, 0.09, 0.05]} />
+          <meshStandardMaterial color="#1c2530" metalness={0.3} roughness={0.62} transparent opacity={chassisState.opacity} emissive={activePart === "core" ? cyan : "#000000"} emissiveIntensity={activePart === "core" ? 0.12 : 0} />
         </mesh>
       </group>
 
-      <group position={mobilityOffset}>
-        <mesh position={[0, 0.02, 0.08]}>
-          <boxGeometry args={[0.74, 0.28, 0.52]} />
-          <Material color={batteryBlack} state={mobilityState} metalness={0.2} roughness={0.82} />
-        </mesh>
-        <mesh position={[0, 0.08, -0.04]}>
-          <boxGeometry args={[0.62, 0.08, 0.36]} />
-          <meshStandardMaterial color="#191d24" metalness={0.18} roughness={0.86} transparent opacity={mobilityState.opacity * 0.95} />
+      <group position={coverOffset}>
+        <mesh>
+          <boxGeometry args={[1.28, 0.04, 0.72]} />
+          <meshStandardMaterial color="#222a34" metalness={0.34} roughness={0.5} transparent opacity={mode === "parts" ? 0.04 : chassisState.opacity * 0.86} emissive={activePart === "core" ? cyan : "#000000"} emissiveIntensity={activePart === "core" ? 0.18 : 0} />
         </mesh>
       </group>
 
       <group position={boardOffset}>
-        <mesh position={[0, 0.02, -0.28]}>
-          <boxGeometry args={[1.06, 0.06, 0.44]} />
-          <Material color="#0d1117" state={boardState} metalness={0.26} roughness={0.78} />
+        <mesh position={[0, 0.02, 0.05]}>
+          <boxGeometry args={[0.78, 0.04, 0.32]} />
+          <Material color={boardBlue} state={boardState} metalness={0.18} roughness={0.56} />
         </mesh>
-        <mesh position={[0, 0.09, -0.26]}>
-          <boxGeometry args={[0.76, 0.05, 0.28]} />
-          <Material color={boardBlue} state={boardState} metalness={0.2} roughness={0.58} />
+        <mesh position={[0.18, 0.065, 0.03]}>
+          <boxGeometry args={[0.28, 0.06, 0.16]} />
+          <meshStandardMaterial color="#1e3047" metalness={0.2} roughness={0.58} transparent opacity={boardState.opacity} />
         </mesh>
-        <mesh position={[0.22, 0.12, -0.19]}>
-          <boxGeometry args={[0.18, 0.08, 0.14]} />
-          <meshStandardMaterial color="#1d2b42" metalness={0.22} roughness={0.64} transparent opacity={boardState.opacity} />
+        <mesh position={[-0.18, 0.075, 0.02]}>
+          <boxGeometry args={[0.18, 0.08, 0.24]} />
+          <meshStandardMaterial color="#1b2432" metalness={0.22} roughness={0.6} transparent opacity={boardState.opacity} />
         </mesh>
-        {[-0.3, -0.18, -0.06, 0.06, 0.18, 0.3].map((x) => (
-          <mesh key={x} position={[x, 0.1, -0.12]}>
-            <boxGeometry args={[0.025, 0.14, 0.025]} />
-            <meshStandardMaterial color="#d2d6df" metalness={0.85} roughness={0.18} transparent opacity={boardState.opacity} />
+        {[-0.27, -0.17, -0.07, 0.03, 0.13, 0.23, 0.33].map((x) => (
+          <mesh key={x} position={[x, 0.085, 0.16]}>
+            <boxGeometry args={[0.022, 0.12, 0.022]} />
+            <meshStandardMaterial color="#d7dce6" metalness={0.85} roughness={0.2} transparent opacity={boardState.opacity} />
           </mesh>
         ))}
-        <mesh position={[-0.44, 0.1, -0.18]}>
-          <boxGeometry args={[0.08, 0.08, 0.08]} />
-          <meshStandardMaterial color="#d93535" metalness={0.15} roughness={0.72} transparent opacity={boardState.opacity} emissive="#d93535" emissiveIntensity={0.12} />
+        <mesh position={[-0.32, 0.065, -0.03]}>
+          <boxGeometry args={[0.08, 0.05, 0.07]} />
+          <meshStandardMaterial color="#b6243f" metalness={0.18} roughness={0.62} transparent opacity={boardState.opacity} emissive="#b6243f" emissiveIntensity={0.1} />
         </mesh>
       </group>
 
-      <group ref={ribbon} position={[0, 0.34, 0.34]}>
-        {[
-          { x: -0.12, color: "#ff4b4b" },
-          { x: -0.06, color: "#ff9d2a" },
-          { x: 0, color: "#ffe15a" },
-          { x: 0.06, color: "#43d56d" },
-          { x: 0.12, color: "#54bfff" },
-        ].map((wire) => (
-          <mesh key={wire.x} position={[wire.x, 0.08, 0]}>
-            <boxGeometry args={[0.035, 0.92, 0.03]} />
-            <meshStandardMaterial color={wire.color} metalness={0.08} roughness={0.55} transparent opacity={boardState.opacity} emissive={wire.color} emissiveIntensity={0.1} />
-          </mesh>
-        ))}
-      </group>
-
-      <group position={arcOffset} ref={arc}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.72, 0.07, 16, 72, Math.PI]} />
-          <Material color={frontArc} state={boardState} metalness={0.22} roughness={0.62} />
+      <group position={batteryOffset}>
+        <mesh position={[0, 0.01, 0]}>
+          <boxGeometry args={[0.82, 0.12, 0.28]} />
+          <Material color={batteryBlack} state={mobilityState} metalness={0.16} roughness={0.82} />
         </mesh>
-        <mesh position={[-0.52, 0, 0]}>
-          <boxGeometry args={[0.22, 0.08, 0.08]} />
-          <Material color={frontArc} state={boardState} metalness={0.22} roughness={0.62} />
+        <mesh position={[-0.18, 0.04, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.085, 0.085, 0.56, 28]} />
+          <meshStandardMaterial color="#12161d" metalness={0.22} roughness={0.72} transparent opacity={mobilityState.opacity} />
         </mesh>
-        <mesh position={[0.52, 0, 0]}>
-          <boxGeometry args={[0.22, 0.08, 0.08]} />
-          <Material color={frontArc} state={boardState} metalness={0.22} roughness={0.62} />
-        </mesh>
-        <mesh position={[0, -0.06, -0.04]}>
-          <boxGeometry args={[0.16, 0.06, 0.16]} />
-          <meshStandardMaterial color="#161b21" metalness={0.2} roughness={0.7} transparent opacity={boardState.opacity} />
-        </mesh>
-        <mesh position={[-0.12, -0.16, -0.04]}>
-          <boxGeometry args={[0.05, 0.28, 0.05]} />
-          <meshStandardMaterial color="#11161d" metalness={0.25} roughness={0.68} transparent opacity={boardState.opacity} />
-        </mesh>
-        <mesh position={[0.12, -0.16, -0.04]}>
-          <boxGeometry args={[0.05, 0.28, 0.05]} />
-          <meshStandardMaterial color="#11161d" metalness={0.25} roughness={0.68} transparent opacity={boardState.opacity} />
+        <mesh position={[0.18, 0.04, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.085, 0.085, 0.56, 28]} />
+          <meshStandardMaterial color="#12161d" metalness={0.22} roughness={0.72} transparent opacity={mobilityState.opacity} />
         </mesh>
       </group>
 
-      <group ref={leftWheel} position={leftOffset}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.24, 0.24, 0.24, 40]} />
-          <meshStandardMaterial color={wheelGrey} metalness={0.16} roughness={0.34} transparent opacity={leftState.opacity} emissive={leftState.emissive} emissiveIntensity={leftState.emissiveIntensity} />
+      <group position={leftMotorOffset}>
+        <mesh>
+          <boxGeometry args={[0.26, 0.16, 0.14]} />
+          <meshStandardMaterial color={motorGold} metalness={0.64} roughness={0.28} transparent opacity={leftState.opacity} emissive={leftState.emissive} emissiveIntensity={leftState.emissiveIntensity} />
         </mesh>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.12, 0.12, 0.27, 32]} />
-          <meshStandardMaterial color={brass} metalness={0.82} roughness={0.22} transparent opacity={leftState.opacity} />
-        </mesh>
-        <mesh position={[0.13, 0, 0.04]}>
-          <boxGeometry args={[0.12, 0.14, 0.28]} />
-          <meshStandardMaterial color={whiteMount} metalness={0.18} roughness={0.6} transparent opacity={leftState.opacity} />
+        <mesh position={[-0.16, 0, 0]}>
+          <boxGeometry args={[0.09, 0.1, 0.1]} />
+          <meshStandardMaterial color={motorCap} metalness={0.22} roughness={0.48} transparent opacity={leftState.opacity} />
         </mesh>
       </group>
 
-      <group ref={rightWheel} position={rightOffset}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.24, 0.24, 0.24, 40]} />
-          <meshStandardMaterial color={wheelGrey} metalness={0.16} roughness={0.34} transparent opacity={rightState.opacity} emissive={rightState.emissive} emissiveIntensity={rightState.emissiveIntensity} />
+      <group position={rightMotorOffset}>
+        <mesh>
+          <boxGeometry args={[0.26, 0.16, 0.14]} />
+          <meshStandardMaterial color={motorGold} metalness={0.64} roughness={0.28} transparent opacity={rightState.opacity} emissive={rightState.emissive} emissiveIntensity={rightState.emissiveIntensity} />
         </mesh>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.12, 0.12, 0.27, 32]} />
-          <meshStandardMaterial color={brass} metalness={0.82} roughness={0.22} transparent opacity={rightState.opacity} />
-        </mesh>
-        <mesh position={[-0.13, 0, 0.04]}>
-          <boxGeometry args={[0.12, 0.14, 0.28]} />
-          <meshStandardMaterial color={whiteMount} metalness={0.18} roughness={0.6} transparent opacity={rightState.opacity} />
+        <mesh position={[0.16, 0, 0]}>
+          <boxGeometry args={[0.09, 0.1, 0.1]} />
+          <meshStandardMaterial color={motorCap} metalness={0.22} roughness={0.48} transparent opacity={rightState.opacity} />
         </mesh>
       </group>
+
+      <group ref={leftWheel} position={leftWheelOffset}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.26, 0.26, 0.19, 40]} />
+          <meshStandardMaterial color={wheelGrey} metalness={0.14} roughness={0.34} transparent opacity={mobilityState.opacity} emissive={mobilityState.emissive} emissiveIntensity={mobilityState.emissiveIntensity} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 0.21, 32]} />
+          <meshStandardMaterial color={wheelHub} metalness={0.42} roughness={0.34} transparent opacity={mobilityState.opacity} />
+        </mesh>
+      </group>
+
+      <group ref={rightWheel} position={rightWheelOffset}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.26, 0.26, 0.19, 40]} />
+          <meshStandardMaterial color={wheelGrey} metalness={0.14} roughness={0.34} transparent opacity={mobilityState.opacity} emissive={mobilityState.emissive} emissiveIntensity={mobilityState.emissiveIntensity} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 0.21, 32]} />
+          <meshStandardMaterial color={wheelHub} metalness={0.42} roughness={0.34} transparent opacity={mobilityState.opacity} />
+        </mesh>
+      </group>
+
+      <WireRun color={wireRed} state={boardState} points={[addOffset([0.26, 0.05, 0.02], boardOffset), addOffset([0.38, 0.05, 0.02], boardOffset), addOffset([0.38, 0.09, 0.06], batteryOffset)]} />
+      <WireRun color={wireBlue} state={boardState} points={[addOffset([-0.24, 0.05, 0.05], boardOffset), addOffset([-0.42, 0.05, 0.05], boardOffset), addOffset([0.06, 0.0, 0.0], leftMotorOffset)]} />
+      <WireRun color={wireYellow} state={boardState} points={[addOffset([0.08, 0.05, 0.05], boardOffset), addOffset([0.42, 0.05, 0.05], boardOffset), addOffset([-0.06, 0.0, 0.0], rightMotorOffset)]} />
 
       {mode !== "parts" &&
         glowBars.map((bar) => (
           <mesh key={bar.position.join("-")} position={bar.position} scale={bar.scale}>
             <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color={cyan} emissive={cyan} emissiveIntensity={0.85} transparent opacity={0.12} />
+            <meshStandardMaterial color={cyan} emissive={cyan} emissiveIntensity={0.85} transparent opacity={0.1} />
           </mesh>
         ))}
     </group>
@@ -259,19 +266,19 @@ function RobotModel({ mode, activePart, animate }: { mode: RobotMode; activePart
 
 export function RobotStage({ mode, activePart, animate }: { mode: RobotMode; activePart: string; animate: boolean }) {
   return (
-    <Canvas camera={{ position: [0, 3.9, 4.7], fov: 28 }}>
+    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 2.95, 5.2], fov: 26 }}>
       <color attach="background" args={["#07111f"]} />
       <fog attach="fog" args={["#07111f", 7, 14]} />
-      <ambientLight intensity={0.92} />
-      <directionalLight position={[4, 6, 4]} intensity={2.2} color="#ffffff" />
-      <directionalLight position={[-3, 4, -3]} intensity={1.1} color={cyan} />
-      <pointLight position={[0, 2.8, 2.2]} intensity={11} distance={8} color={orange} />
+      <ambientLight intensity={0.96} />
+      <directionalLight position={[4, 6, 4]} intensity={2.1} color="#ffffff" />
+      <directionalLight position={[-3, 4, -3]} intensity={1.2} color={cyan} />
+      <pointLight position={[0, 2.6, 2.2]} intensity={9} distance={8} color={orange} />
       <RobotModel mode={mode} activePart={activePart} animate={animate} />
-      <mesh position={[0, -0.62, 0.12]} rotation={[-Math.PI / 2, 0, 0]} scale={[7, 7, 1]}>
+      <mesh position={[0, -0.68, 0.18]} rotation={[-Math.PI / 2, 0, 0]} scale={[7.8, 7.8, 1]}>
         <planeGeometry args={[1, 1, 1, 1]} />
         <meshStandardMaterial color="#08101a" metalness={0.28} roughness={0.9} />
       </mesh>
-      <OrbitControls enablePan={false} minDistance={3.8} maxDistance={7.2} minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 2.15} />
+      <OrbitControls enablePan={false} minDistance={4} maxDistance={7.4} minPolarAngle={Math.PI / 5.7} maxPolarAngle={Math.PI / 2.08} />
     </Canvas>
   );
 }
